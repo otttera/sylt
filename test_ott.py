@@ -1,0 +1,1 @@
+print("Ott Tera")
