@@ -9,3 +9,6 @@ Luua kalender, kus on search bar, mille abil on võimalik kuupäevi kiiremini le
 https://trello.com/b/8YxLWtiw/sult
 # Prototüüp 
 https://drive.google.com/file/d/1XOhfMi4U-Cc9AE_a2BjYIa8Xo-H3NNXe/view?usp=sharing
+# Kasutajajuhis
+Vaja Flask moodul
+Käivitada app.py
