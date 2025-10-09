@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ month_name }} {{ year }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+   
+      <div id="clock"></div>
+
+      <header>
+        <a href="/{{ prev_year }}/{{ prev_month }}">< Eelmine kuu</a>
+        <h1>{{ month_name }} {{ year }}</h1>
+        <a href="/{{ next_year }}/{{ next_month }}">Järgmine kuu > </a>
+      </header>
+
+      <table>
+        <tr>
+          {% for day in weekday_names %}
+          <th>{{ day }}</th>
+          {% endfor %}
+        </tr>
+        {% for week in month_matrix %}
+        <tr>
+          {% for day in week %}
+          {% if day == 0 %}
+          <td></td>
+          {% else %}
+          <td class="{% if day == today_day and month == today_month and year == today_year %}today{% endif %}">
+            {{ day }}
+          </td>
+          {% endif %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <script>
+      function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('clock').textContent = hours + ':' + minutes + ':' + seconds;
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+    </script>
+  </body>
+</html>
