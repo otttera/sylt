@@ -10,5 +10,7 @@ https://trello.com/b/8YxLWtiw/sult
 # Prototüüp 
 https://drive.google.com/file/d/1XOhfMi4U-Cc9AE_a2BjYIa8Xo-H3NNXe/view?usp=sharing
 # Kasutajajuhis
-Vaja Flask moodul; tõmmata alla: app.py; calendar.html; style.css;
-Lisada need kasutadesse nagu src kalender_main näidatud
+1. Vaja Flask moodul
+2. Tõmmata alla: app.py; calendar.html; style.css;
+3. Lisada need kasutadesse nagu src kalender_main näidatud
+4. Käivitada app.py ning avada link
