@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>{{ month_name }} {{ year }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
@@ -15,6 +16,27 @@
         <h1>{{ month_name }} {{ year }}</h1>
         <a href="/{{ next_year }}/{{ next_month }}">Järgmine kuu > </a>
       </header>
+
+      <div class="button-container">
+        <button id="openButton" class="open-button">Ava kast</button>
+  
+        <!-- Kast, mis avaneb nupule vajutades -->
+        <div id="popupBox" class="popup-box">
+          <p>Sisesta kuupäev:</p>
+          <div class="date-input-container">
+            <input type="text" id="day" maxlength="2" placeholder="dd" class="date-field" />
+            <span>/</span>
+            <input type="text" id="month" maxlength="2" placeholder="mm" class="date-field" />
+            <span>/</span>
+            <input type="text" id="year" maxlength="2" placeholder="yy" class="date-field" />
+          </div>
+  
+          <div id="noteBox" class="note-box">
+            <textarea id="noteInput" placeholder="Lisa märkmeid..." class="note-input"></textarea>
+          </div>
+        </div>
+      </div>
+  </div>
 
       <table>
         <tr>
@@ -49,5 +71,56 @@
       setInterval(updateClock, 1000);
       updateClock();
     </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+  const openButton = document.getElementById('openButton');
+  const popupBox = document.getElementById('popupBox');
+
+  openButton.addEventListener('click', () => {
+    popupBox.classList.toggle('open');
+  });
+
+
+  const day = document.getElementById('day');
+  const month = document.getElementById('month');
+  const year = document.getElementById('year');
+
+  function autoTab(current, next) {
+    current.addEventListener('input', () => {
+      current.value = current.value.replace(/\D/g,'');
+      if (current.value.length >= 2 && next) {
+        next.focus();
+      }
+    });
+  }
+
+  autoTab(day, month);
+  autoTab(month, year);
+
+  const noteInput = document.getElementById('noteInput');
+  const noteBox = document.getElementById('noteBox');
+
+  function checkDateComplete() {
+    if (day.value.length === 2 && month.value.length === 2 && year.value.length === 2) {
+      noteBox.style.display = 'block';
+    } else {
+      noteBox.style.display = 'none';
+    }
+  }
+
+  [day, month, year].forEach(input => {
+    input.addEventListener('input', checkDateComplete);
+  });
+
+  noteInput.addEventListener('input', () => {
+    noteInput.style.height = 'auto';
+    noteInput.style.height = noteInput.scrollHeight + 'px';
+  });
+
+});
+    </script>
+    
   </body>
 </html>
