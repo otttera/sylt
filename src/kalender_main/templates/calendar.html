@@ -17,26 +17,26 @@
         <a href="/{{ next_year }}/{{ next_month }}">Järgmine kuu > </a>
       </header>
 
-      <div class="button-container">
-        <button id="openButton" class="open-button">Ava kast</button>
-  
-        <!-- Kast, mis avaneb nupule vajutades -->
-        <div id="popupBox" class="popup-box">
-          <p>Sisesta kuupäev:</p>
-          <div class="date-input-container">
-            <input type="text" id="day" maxlength="2" placeholder="dd" class="date-field" />
-            <span>/</span>
-            <input type="text" id="month" maxlength="2" placeholder="mm" class="date-field" />
-            <span>/</span>
-            <input type="text" id="year" maxlength="2" placeholder="yy" class="date-field" />
-          </div>
-  
-          <div id="noteBox" class="note-box">
-            <textarea id="noteInput" placeholder="Lisa märkmeid..." class="note-input"></textarea>
-          </div>
+      <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Otsi..." />
+      
+      <!-- Avanev kast: ainult kuupäev ja märkmed -->
+      <div id="searchBox" class="search-box">
+        <p>Sisesta kuupäev:</p>
+        <div class="date-input-container">
+          <input type="text" id="day" maxlength="2" placeholder="dd" class="date-field" />
+          <span>/</span>
+          <input type="text" id="month" maxlength="2" placeholder="mm" class="date-field" />
+          <span>/</span>
+          <input type="text" id="year" maxlength="2" placeholder="yy" class="date-field" />
+        </div>
+
+        <!-- Märkmete kast -->
+        <div id="noteBox" class="note-box">
+          <textarea id="noteInput" placeholder="Lisa märkmeid..." class="note-input"></textarea>
         </div>
       </div>
-  </div>
+    </div>
 
       <table>
         <tr>
@@ -73,54 +73,60 @@
     </script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('DOMContentLoaded', () => {
 
-  const openButton = document.getElementById('openButton');
-  const popupBox = document.getElementById('popupBox');
+        // SEARCH BAR JA KAST
+        const searchInput = document.getElementById('searchInput');
+        const searchBox = document.getElementById('searchBox');
 
-  openButton.addEventListener('click', () => {
-    popupBox.classList.toggle('open');
-  });
+        searchInput.addEventListener('focus', () => {
+          searchBox.classList.add('open');
+        });
 
+        document.addEventListener('click', (e) => {
+          if (!searchBox.contains(e.target) && e.target !== searchInput) {
+            searchBox.classList.remove('open');
+          }
+        });
 
-  const day = document.getElementById('day');
-  const month = document.getElementById('month');
-  const year = document.getElementById('year');
+        // KUUPÄEVA INPUT
+        const day = document.getElementById('day');
+        const month = document.getElementById('month');
+        const year = document.getElementById('year');
 
-  function autoTab(current, next) {
-    current.addEventListener('input', () => {
-      current.value = current.value.replace(/\D/g,'');
-      if (current.value.length >= 2 && next) {
-        next.focus();
-      }
-    });
-  }
+        function autoTab(current, next, maxLength) {
+          current.addEventListener('input', () => {
+            current.value = current.value.replace(/\D/g,''); // ainult numbrid
+            if (current.value.length >= maxLength && next) {
+              next.focus();
+            }
+          });
+        }
 
-  autoTab(day, month);
-  autoTab(month, year);
+        autoTab(day, month, 2);
+        autoTab(month, year, 2);
 
-  const noteInput = document.getElementById('noteInput');
-  const noteBox = document.getElementById('noteBox');
+        // TEINE KAST (märkmikud)
+        const noteInput = document.getElementById('noteInput');
+        const noteBox = document.getElementById('noteBox');
 
-  function checkDateComplete() {
-    if (day.value.length === 2 && month.value.length === 2 && year.value.length === 2) {
-      noteBox.style.display = 'block';
-    } else {
-      noteBox.style.display = 'none';
-    }
-  }
+        [day, month, year].forEach(input => {
+          input.addEventListener('input', () => {
+            if (day.value.length === 2 && month.value.length === 2 && year.value.length === 2) {
+              noteBox.style.display = 'block';
+            } else {
+              noteBox.style.display = 'none';
+            }
+          });
+        });
 
-  [day, month, year].forEach(input => {
-    input.addEventListener('input', checkDateComplete);
-  });
+        // AUTOMAATNE KÕRGUSE MUUTUS textarea-s
+        noteInput.addEventListener('input', () => {
+          noteInput.style.height = 'auto';
+          noteInput.style.height = noteInput.scrollHeight + 'px';
+        });
 
-  noteInput.addEventListener('input', () => {
-    noteInput.style.height = 'auto';
-    noteInput.style.height = noteInput.scrollHeight + 'px';
-  });
-
-});
+      });
     </script>
-    
   </body>
 </html>
