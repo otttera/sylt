@@ -68,6 +68,14 @@ th {
   font-size: 16px;
 }
 
+.day-activity-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 4px auto 0;
+  display: none;
+}
+
 .day-note {
   font-size: 18px;
   margin-top: 2px;
@@ -193,6 +201,115 @@ th {
   color: #000;
 }
 
+/* NEW: Form group styling */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+/* NEW: Time input styling */
+.time-input {
+  width: 150px;
+  padding: 8px 10px;
+  border: 1px solid #000000;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+
+/* NEW: Activity selector */
+.activity-selector {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.activity-selector-small {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.activity-item-small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.activity-name-small {
+  font-size: 10px;
+  color: #666;
+  text-align: center;
+}
+
+.activity-circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.activity-circle-small {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.activity-circle:hover,
+.activity-circle-small:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.activity-circle.selected {
+  border-color: #333;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
+}
+
+.activity-circle-small.selected {
+  border-color: #333;
+  box-shadow: 0 0 0 2px white, 0 0 0 3px #333;
+}
+
+.activity-circle.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.activity-circle-small.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
 .modal-note-input {
   width: 95%;
   min-height: 100px;
@@ -202,7 +319,6 @@ th {
   font-size: 14px;
   font-family: Arial, sans-serif;
   resize: vertical;
-  margin-top: 10px;
 }
 
 .modal-btn {
@@ -226,5 +342,4 @@ th {
 
 .modal-btn:hover {
   opacity: 0.9;
-
 }
