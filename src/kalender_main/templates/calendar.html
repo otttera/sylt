@@ -33,6 +33,41 @@
 
         
         <div id="noteBox" class="note-box">
+          <div style="margin-bottom: 10px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Aeg</label>
+            <input type="time" id="searchBoxTime" class="time-input" style="width: 130px;">
+          </div>
+          
+          <div style="margin-bottom: 10px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Tegevus</label>
+            <div class="activity-selector-small">
+              <div class="activity-item-small">
+                <div class="activity-circle-small" style="background: #FF6B6B;" data-activity="töö"></div>
+                <div class="activity-name-small">Töö</div>
+              </div>
+              <div class="activity-item-small">
+                <div class="activity-circle-small" style="background: #4ECDC4;" data-activity="treening"></div>
+                <div class="activity-name-small">Treening</div>
+              </div>
+              <div class="activity-item-small">
+                <div class="activity-circle-small" style="background: #45B7D1;" data-activity="õppimine"></div>
+                <div class="activity-name-small">Õppimine</div>
+              </div>
+              <div class="activity-item-small">
+                <div class="activity-circle-small" style="background: #FFA07A;" data-activity="sõbrad"></div>
+                <div class="activity-name-small">Sõbrad</div>
+              </div>
+              <div class="activity-item-small">
+                <div class="activity-circle-small" style="background: #98D8C8;" data-activity="puhkus"></div>
+                <div class="activity-name-small">Puhkus</div>
+              </div>
+              <div class="activity-item-small">
+                <div class="activity-circle-small" style="background: #F7DC6F;" data-activity="hobi"></div>
+                <div class="activity-name-small">Hobi</div>
+              </div>
+            </div>
+          </div>
+          
           <textarea id="noteInput" placeholder="Lisa märkmeid..." class="note-input"></textarea>
           <button id="saveNoteBtn" style="width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
            Salvesta märge
@@ -59,6 +94,7 @@
           <td class="calendar-day {% if day == today_day and month == today_month and year == today_year %}today{% endif %}" 
               data-date="{{ year }}-{{ '%02d'|format(month) }}-{{ '%02d'|format(day) }}">
             <div class="day-number">{{ day }}</div>
+            <div class="day-activity-dot"></div>
             <div class="day-note"></div>
           </td>
           {% endif %}
@@ -73,7 +109,47 @@
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2 id="modalDate"></h2>
-        <textarea id="modalNoteInput" class="modal-note-input" placeholder="Lisa märkmeid..."></textarea>
+        
+        <div class="form-group">
+          <label>Aeg</label>
+          <input type="time" id="modalTime" class="time-input">
+        </div>
+
+        <div class="form-group">
+          <label>Tegevus</label>
+          <div class="activity-selector">
+            <div class="activity-item">
+              <div class="activity-circle" style="background: #FF6B6B;" data-activity="töö"></div>
+              <div class="activity-name">Töö</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-circle" style="background: #4ECDC4;" data-activity="treening"></div>
+              <div class="activity-name">Treening</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-circle" style="background: #45B7D1;" data-activity="õppimine"></div>
+              <div class="activity-name">Õppimine</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-circle" style="background: #FFA07A;" data-activity="sõbrad"></div>
+              <div class="activity-name">Sõbrad</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-circle" style="background: #98D8C8;" data-activity="puhkus"></div>
+              <div class="activity-name">Puhkus</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-circle" style="background: #F7DC6F;" data-activity="hobi"></div>
+              <div class="activity-name">Hobi</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Märkmed</label>
+          <textarea id="modalNoteInput" class="modal-note-input" placeholder="Lisa märkmeid..."></textarea>
+        </div>
+
         <div style="margin-top: 10px;">
           <button id="saveModalNote" class="modal-btn save-btn">Salvesta</button>
           <button id="deleteModalNote" class="modal-btn delete-btn">Kustuta märge</button>
@@ -83,6 +159,8 @@
 
     <script>
       let notesData = {{ notes|safe }};
+      let selectedActivity = null;
+      let selectedSearchBoxActivity = null;
 
       function updateClock() {
         const now = new Date();
@@ -99,11 +177,24 @@
         document.querySelectorAll('.calendar-day').forEach(cell => {
           const date = cell.dataset.date;
           const noteDiv = cell.querySelector('.day-note');
+          const activityDot = cell.querySelector('.day-activity-dot');
+          
           if (notesData[date]) {
-            noteDiv.textContent = '📝';
-            noteDiv.title = notesData[date];
+            const noteText = notesData[date];
+            noteDiv.textContent = '';
+            noteDiv.title = noteText;
+            
+            // Extract activity color from note
+            const colorMatch = noteText.match(/\[COLOR:(#[A-Fa-f0-9]{6}|rgb\([0-9, ]+\))\]/);
+            if (colorMatch) {
+              activityDot.style.background = colorMatch[1];
+              activityDot.style.display = 'block';
+            } else {
+              activityDot.style.display = 'none';
+            }
           } else {
             noteDiv.textContent = '';
+            activityDot.style.display = 'none';
           }
         });
       }
@@ -172,7 +263,45 @@
               // Load existing note for this date
               const fullYear = year.value.length === 2 ? '20' + year.value : year.value;
               const dateKey = `${fullYear}-${month.value.padStart(2, '0')}-${day.value.padStart(2, '0')}`;
-              noteInput.value = notesData[dateKey] || '';
+              const existingNote = notesData[dateKey] || '';
+              
+              // Extract time
+              const timeMatch = existingNote.match(/⏰ (\d{2}:\d{2})/);
+              const searchBoxTime = document.getElementById('searchBoxTime');
+              if (timeMatch) {
+                searchBoxTime.value = timeMatch[1];
+              } else {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                searchBoxTime.value = `${hours}:${minutes}`;
+              }
+              
+              // Extract activity color and select it
+              const colorMatch = existingNote.match(/\[COLOR:(#[A-Fa-f0-9]{6}|rgb\([0-9, ]+\))\]/);
+              document.querySelectorAll('.activity-circle-small').forEach(c => {
+                c.classList.remove('selected');
+              });
+              selectedSearchBoxActivity = null;
+              
+              if (colorMatch) {
+                const color = colorMatch[1];
+                document.querySelectorAll('.activity-circle-small').forEach(c => {
+                  if (c.style.background === color || c.style.backgroundColor === color) {
+                    c.classList.add('selected');
+                    selectedSearchBoxActivity = {
+                      type: c.dataset.activity,
+                      color: color
+                    };
+                  }
+                });
+              }
+              
+              // Extract clean note text (remove time, activity, and color metadata)
+              let cleanNote = existingNote.replace(/⏰ \d{2}:\d{2}/, '').trim();
+              cleanNote = cleanNote.replace(/\| [^\n]+/, '').trim();
+              cleanNote = cleanNote.replace(/\[COLOR:[^\]]+\]/, '').trim();
+              noteInput.value = cleanNote;
             } else {
               noteBox.style.display = 'none';
             }
@@ -192,10 +321,26 @@
             const fullYear = year.value.length === 2 ? '20' + year.value : year.value;
             const dateKey = `${fullYear}-${month.value.padStart(2, '0')}-${day.value.padStart(2, '0')}`;
             
+            let noteText = noteInput.value;
+            const searchBoxTime = document.getElementById('searchBoxTime');
+            
+            // Add time and activity to note if they exist
+            if (searchBoxTime.value || selectedSearchBoxActivity) {
+              let prefix = '';
+              if (searchBoxTime.value) {
+                prefix += `⏰ ${searchBoxTime.value}`;
+              }
+              if (selectedSearchBoxActivity) {
+                prefix += ` | ${selectedSearchBoxActivity.type}`;
+                prefix += ` [COLOR:${selectedSearchBoxActivity.color}]`;
+              }
+              noteText = prefix + (noteText ? '\n' + noteText : '');
+            }
+            
             const response = await fetch('/api/notes', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ date: dateKey, note: noteInput.value })
+              body: JSON.stringify({ date: dateKey, note: noteText })
             });
             
             const data = await response.json();
@@ -218,17 +363,86 @@
         const modal = document.getElementById('noteModal');
         const modalDate = document.getElementById('modalDate');
         const modalNoteInput = document.getElementById('modalNoteInput');
+        const modalTime = document.getElementById('modalTime');
         const closeModal = document.querySelector('.close');
         const saveModalNote = document.getElementById('saveModalNote');
         const deleteModalNote = document.getElementById('deleteModalNote');
         let currentModalDate = null;
+
+        // Activity circle selection
+        document.querySelectorAll('.activity-circle').forEach(circle => {
+          circle.addEventListener('click', function() {
+            document.querySelectorAll('.activity-circle').forEach(c => {
+              c.classList.remove('selected');
+            });
+            this.classList.add('selected');
+            selectedActivity = {
+              type: this.dataset.activity,
+              color: this.style.background
+            };
+          });
+        });
+
+        // Activity circle selection for search box
+        document.querySelectorAll('.activity-circle-small').forEach(circle => {
+          circle.addEventListener('click', function() {
+            document.querySelectorAll('.activity-circle-small').forEach(c => {
+              c.classList.remove('selected');
+            });
+            this.classList.add('selected');
+            selectedSearchBoxActivity = {
+              type: this.dataset.activity,
+              color: this.style.background
+            };
+          });
+        });
 
         document.querySelectorAll('.calendar-day').forEach(cell => {
           cell.addEventListener('click', () => {
             currentModalDate = cell.dataset.date;
             const [y, m, d] = currentModalDate.split('-');
             modalDate.textContent = `${d}.${m}.${y}`;
-            modalNoteInput.value = notesData[currentModalDate] || '';
+            
+            // Load existing note and parse it
+            const existingNote = notesData[currentModalDate] || '';
+            
+            // Extract time
+            const timeMatch = existingNote.match(/⏰ (\d{2}:\d{2})/);
+            if (timeMatch) {
+              modalTime.value = timeMatch[1];
+            } else {
+              const now = new Date();
+              const hours = String(now.getHours()).padStart(2, '0');
+              const minutes = String(now.getMinutes()).padStart(2, '0');
+              modalTime.value = `${hours}:${minutes}`;
+            }
+            
+            // Extract activity color and select it
+            const colorMatch = existingNote.match(/\[COLOR:(#[A-Fa-f0-9]{6}|rgb\([0-9, ]+\))\]/);
+            document.querySelectorAll('.activity-circle').forEach(c => {
+              c.classList.remove('selected');
+            });
+            selectedActivity = null;
+            
+            if (colorMatch) {
+              const color = colorMatch[1];
+              document.querySelectorAll('.activity-circle').forEach(c => {
+                if (c.style.background === color || c.style.backgroundColor === color) {
+                  c.classList.add('selected');
+                  selectedActivity = {
+                    type: c.dataset.activity,
+                    color: color
+                  };
+                }
+              });
+            }
+            
+            // Extract clean note text (remove time, activity, and color metadata)
+            let cleanNote = existingNote.replace(/⏰ \d{2}:\d{2}/, '').trim();
+            cleanNote = cleanNote.replace(/\| [^\n]+/, '').trim();
+            cleanNote = cleanNote.replace(/\[COLOR:[^\]]+\]/, '').trim();
+            modalNoteInput.value = cleanNote;
+            
             modal.style.display = 'block';
           });
         });
@@ -244,10 +458,26 @@
         });
 
         saveModalNote.addEventListener('click', async () => {
+          let noteText = modalNoteInput.value;
+          
+          // Add time and activity to note if they exist
+          if (modalTime.value || selectedActivity) {
+            let prefix = '';
+            if (modalTime.value) {
+              prefix += `⏰ ${modalTime.value}`;
+            }
+            if (selectedActivity) {
+              prefix += ` | ${selectedActivity.type}`;
+              // Add hidden color marker for calendar display
+              prefix += ` [COLOR:${selectedActivity.color}]`;
+            }
+            noteText = prefix + (noteText ? '\n' + noteText : '');
+          }
+          
           const response = await fetch('/api/notes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: currentModalDate, note: modalNoteInput.value })
+            body: JSON.stringify({ date: currentModalDate, note: noteText })
           });
           
           const data = await response.json();
