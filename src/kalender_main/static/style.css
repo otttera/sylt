@@ -138,7 +138,7 @@ th {
 }
 
 .note-input {
-  width: 100%;
+  width: 92%;
   min-height: 30px;      
   max-height: 200px;     
   padding: 6px 10px;
@@ -194,7 +194,7 @@ th {
 }
 
 .modal-note-input {
-  width: 100%;
+  width: 95%;
   min-height: 100px;
   padding: 10px;
   border: 1px solid #000000;
@@ -226,4 +226,5 @@ th {
 
 .modal-btn:hover {
   opacity: 0.9;
+
 }
