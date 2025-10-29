@@ -54,9 +54,35 @@ th {
   color: white;
 }
 
+.calendar-day {
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.calendar-day:hover {
+  background-color: #f0f0f0;
+}
+
+.day-number {
+  font-size: 16px;
+}
+
+.day-note {
+  font-size: 18px;
+  margin-top: 2px;
+}
+
 .today {
   background: #cfe2ff;
   font-weight: bold;
+}
+
+.highlighted {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  font-weight: bold;
+  animation: pulse 1s ease-in-out 3;
 }
 
 .search-container {
@@ -72,7 +98,7 @@ th {
   border-radius: 6px;
 }
 
-/* Avanev kast search bar'i all */
+
 .search-box {
   display: none;
   position: absolute;
@@ -108,8 +134,7 @@ th {
 
 .note-box {
   margin-top: 12px;
-  width: 65%;
-  margin-right: auto;
+  width: 100%;
 }
 
 .note-input {
@@ -124,8 +149,81 @@ th {
   overflow-y: hidden;    
   transition: height 0.2s ease;
 }
+
 .clock-box {
   border: 1px solid #000000;
   border-radius: 6px;
   width: 90px;
+  padding: 5px;
+}
+
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+}
+
+.modal-note-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #000000;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  resize: vertical;
+  margin-top: 10px;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.modal-btn:hover {
+  opacity: 0.9;
 }
