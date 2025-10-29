@@ -20,7 +20,7 @@
       <div class="search-container">
       <input type="text" id="searchInput" class="search-input" placeholder="Otsi..." />
       
-      <!-- Avanev kast: ainult kuupäev ja märkmed -->
+      
       <div id="searchBox" class="search-box">
         <p>Sisesta kuupäev:</p>
         <div class="date-input-container">
@@ -28,13 +28,16 @@
           <span>/</span>
           <input type="text" id="month" maxlength="2" placeholder="kk" class="date-field" />
           <span>/</span>
-          <input type="text" id="year" maxlength="2" placeholder="aa" class="date-field" />
+          <input type="text" id="year" maxlength="4" placeholder="aaaa" class="date-field" />
         </div>
 
-        <!-- Märkmete kast -->
+        
         <div id="noteBox" class="note-box">
           <textarea id="noteInput" placeholder="Lisa märkmeid..." class="note-input"></textarea>
-          <button id="searchBtn" style="width: 100%; margin-top: 10px; padding: 8px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+          <button id="saveNoteBtn" style="width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
+           Salvesta märge
+           </button>
+          <button id="searchBtn" style="width: 100%; margin-top: 6px; padding: 8px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
            Ava kuupäev
            </button>
         </div>
@@ -53,8 +56,10 @@
           {% if day == 0 %}
           <td></td>
           {% else %}
-          <td class="{% if day == today_day and month == today_month and year == today_year %}today{% endif %}">
-            {{ day }}
+          <td class="calendar-day {% if day == today_day and month == today_month and year == today_year %}today{% endif %}" 
+              data-date="{{ year }}-{{ '%02d'|format(month) }}-{{ '%02d'|format(day) }}">
+            <div class="day-number">{{ day }}</div>
+            <div class="day-note"></div>
           </td>
           {% endif %}
           {% endfor %}
@@ -63,7 +68,22 @@
       </table>
     </div>
 
+    
+    <div id="noteModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalDate"></h2>
+        <textarea id="modalNoteInput" class="modal-note-input" placeholder="Lisa märkmeid..."></textarea>
+        <div style="margin-top: 10px;">
+          <button id="saveModalNote" class="modal-btn save-btn">Salvesta</button>
+          <button id="deleteModalNote" class="modal-btn delete-btn">Kustuta märge</button>
+        </div>
+      </div>
+    </div>
+
     <script>
+      let notesData = {{ notes|safe }};
+
       function updateClock() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
@@ -74,7 +94,36 @@
       setInterval(updateClock, 1000);
       updateClock();
 
+      
+      function displayNotes() {
+        document.querySelectorAll('.calendar-day').forEach(cell => {
+          const date = cell.dataset.date;
+          const noteDiv = cell.querySelector('.day-note');
+          if (notesData[date]) {
+            noteDiv.textContent = '📝';
+            noteDiv.title = notesData[date];
+          } else {
+            noteDiv.textContent = '';
+          }
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', () => {
+        displayNotes();
+
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const highlightDay = urlParams.get('highlight');
+        if (highlightDay) {
+          document.querySelectorAll('.calendar-day').forEach(cell => {
+            const dateStr = cell.dataset.date;
+            const dayNum = dateStr.split('-')[2];
+            if (parseInt(dayNum) === parseInt(highlightDay)) {
+              cell.classList.add('highlighted');
+              cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          });
+        }
 
         // SEARCH BAR JA KAST
         const searchInput = document.getElementById('searchInput');
@@ -97,7 +146,7 @@
 
         function autoTab(current, next, maxLength) {
           current.addEventListener('input', () => {
-            current.value = current.value.replace(/\D/g,''); // ainult numbrid
+            current.value = current.value.replace(/\D/g,'');
             if (current.value.length >= maxLength && next) {
               next.focus();
             }
@@ -107,14 +156,23 @@
         autoTab(day, month, 2);
         autoTab(month, year, 2);
 
-        // TEINE KAST (märkmikud)
+        // TEINE KAST (märkmed)
         const noteInput = document.getElementById('noteInput');
         const noteBox = document.getElementById('noteBox');
 
         [day, month, year].forEach(input => {
           input.addEventListener('input', () => {
-            if (day.value.length === 2 && month.value.length === 2 && year.value.length === 2) {
+            const dayVal = day.value.length === 2;
+            const monthVal = month.value.length === 2;
+            const yearVal = year.value.length >= 2;
+            
+            if (dayVal && monthVal && yearVal) {
               noteBox.style.display = 'block';
+              
+              // Load existing note for this date
+              const fullYear = year.value.length === 2 ? '20' + year.value : year.value;
+              const dateKey = `${fullYear}-${month.value.padStart(2, '0')}-${day.value.padStart(2, '0')}`;
+              noteInput.value = notesData[dateKey] || '';
             } else {
               noteBox.style.display = 'none';
             }
@@ -127,15 +185,90 @@
           noteInput.style.height = noteInput.scrollHeight + 'px';
         });
 
-      });
-      
-      const searchBtn = document.getElementById('searchBtn');
+        
+        const saveNoteBtn = document.getElementById('saveNoteBtn');
+        saveNoteBtn.addEventListener('click', async () => {
+          if (day.value && month.value && year.value) {
+            const fullYear = year.value.length === 2 ? '20' + year.value : year.value;
+            const dateKey = `${fullYear}-${month.value.padStart(2, '0')}-${day.value.padStart(2, '0')}`;
+            
+            const response = await fetch('/api/notes', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ date: dateKey, note: noteInput.value })
+            });
+            
+            const data = await response.json();
+            notesData = data.notes;
+            displayNotes();
+            alert('Märge salvestatud!');
+          }
+        });
+
+        
+        const searchBtn = document.getElementById('searchBtn');
         searchBtn.addEventListener('click', () => {
           if (day.value && month.value && year.value) {
             const fullYear = year.value.length === 2 ? '20' + year.value : year.value;
-            window.location.href = `/${fullYear}/${month.value}`;
+            window.location.href = `/${fullYear}/${month.value}?highlight=${day.value}`;
           }
         });
+
+        
+        const modal = document.getElementById('noteModal');
+        const modalDate = document.getElementById('modalDate');
+        const modalNoteInput = document.getElementById('modalNoteInput');
+        const closeModal = document.querySelector('.close');
+        const saveModalNote = document.getElementById('saveModalNote');
+        const deleteModalNote = document.getElementById('deleteModalNote');
+        let currentModalDate = null;
+
+        document.querySelectorAll('.calendar-day').forEach(cell => {
+          cell.addEventListener('click', () => {
+            currentModalDate = cell.dataset.date;
+            const [y, m, d] = currentModalDate.split('-');
+            modalDate.textContent = `${d}.${m}.${y}`;
+            modalNoteInput.value = notesData[currentModalDate] || '';
+            modal.style.display = 'block';
+          });
+        });
+
+        closeModal.addEventListener('click', () => {
+          modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.style.display = 'none';
+          }
+        });
+
+        saveModalNote.addEventListener('click', async () => {
+          const response = await fetch('/api/notes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: currentModalDate, note: modalNoteInput.value })
+          });
+          
+          const data = await response.json();
+          notesData = data.notes;
+          displayNotes();
+          modal.style.display = 'none';
+        });
+
+        deleteModalNote.addEventListener('click', async () => {
+          const response = await fetch('/api/notes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: currentModalDate, note: '' })
+          });
+          
+          const data = await response.json();
+          notesData = data.notes;
+          displayNotes();
+          modal.style.display = 'none';
+        });
+      });
     </script>
   </body>
 </html>
