@@ -184,7 +184,6 @@
             noteDiv.textContent = '';
             noteDiv.title = noteText;
             
-            // Extract activity color from note
             const colorMatch = noteText.match(/\[COLOR:(#[A-Fa-f0-9]{6}|rgb\([0-9, ]+\))\]/);
             if (colorMatch) {
               activityDot.style.background = colorMatch[1];
@@ -216,7 +215,7 @@
           });
         }
 
-        // SEARCH BAR JA KAST
+        
         const searchInput = document.getElementById('searchInput');
         const searchBox = document.getElementById('searchBox');
 
@@ -230,7 +229,7 @@
           }
         });
 
-        // KUUPÄEVA INPUT
+        
         const day = document.getElementById('day');
         const month = document.getElementById('month');
         const year = document.getElementById('year');
@@ -247,7 +246,7 @@
         autoTab(day, month, 2);
         autoTab(month, year, 2);
 
-        // TEINE KAST (märkmed)
+        
         const noteInput = document.getElementById('noteInput');
         const noteBox = document.getElementById('noteBox');
 
@@ -260,12 +259,12 @@
             if (dayVal && monthVal && yearVal) {
               noteBox.style.display = 'block';
               
-              // Load existing note for this date
+             
               const fullYear = year.value.length === 2 ? '20' + year.value : year.value;
               const dateKey = `${fullYear}-${month.value.padStart(2, '0')}-${day.value.padStart(2, '0')}`;
               const existingNote = notesData[dateKey] || '';
               
-              // Extract time
+              
               const timeMatch = existingNote.match(/⏰ (\d{2}:\d{2})/);
               const searchBoxTime = document.getElementById('searchBoxTime');
               if (timeMatch) {
@@ -277,7 +276,7 @@
                 searchBoxTime.value = `${hours}:${minutes}`;
               }
               
-              // Extract activity color and select it
+              
               const colorMatch = existingNote.match(/\[COLOR:(#[A-Fa-f0-9]{6}|rgb\([0-9, ]+\))\]/);
               document.querySelectorAll('.activity-circle-small').forEach(c => {
                 c.classList.remove('selected');
@@ -297,7 +296,7 @@
                 });
               }
               
-              // Extract clean note text (remove time, activity, and color metadata)
+              
               let cleanNote = existingNote.replace(/⏰ \d{2}:\d{2}/, '').trim();
               cleanNote = cleanNote.replace(/\| [^\n]+/, '').trim();
               cleanNote = cleanNote.replace(/\[COLOR:[^\]]+\]/, '').trim();
@@ -324,7 +323,7 @@
             let noteText = noteInput.value;
             const searchBoxTime = document.getElementById('searchBoxTime');
             
-            // Add time and activity to note if they exist
+            
             if (searchBoxTime.value || selectedSearchBoxActivity) {
               let prefix = '';
               if (searchBoxTime.value) {
@@ -369,7 +368,7 @@
         const deleteModalNote = document.getElementById('deleteModalNote');
         let currentModalDate = null;
 
-        // Activity circle selection
+        
         document.querySelectorAll('.activity-circle').forEach(circle => {
           circle.addEventListener('click', function() {
             document.querySelectorAll('.activity-circle').forEach(c => {
@@ -383,7 +382,7 @@
           });
         });
 
-        // Activity circle selection for search box
+        
         document.querySelectorAll('.activity-circle-small').forEach(circle => {
           circle.addEventListener('click', function() {
             document.querySelectorAll('.activity-circle-small').forEach(c => {
@@ -403,10 +402,10 @@
             const [y, m, d] = currentModalDate.split('-');
             modalDate.textContent = `${d}.${m}.${y}`;
             
-            // Load existing note and parse it
+            
             const existingNote = notesData[currentModalDate] || '';
             
-            // Extract time
+            
             const timeMatch = existingNote.match(/⏰ (\d{2}:\d{2})/);
             if (timeMatch) {
               modalTime.value = timeMatch[1];
@@ -417,7 +416,7 @@
               modalTime.value = `${hours}:${minutes}`;
             }
             
-            // Extract activity color and select it
+            
             const colorMatch = existingNote.match(/\[COLOR:(#[A-Fa-f0-9]{6}|rgb\([0-9, ]+\))\]/);
             document.querySelectorAll('.activity-circle').forEach(c => {
               c.classList.remove('selected');
@@ -437,7 +436,7 @@
               });
             }
             
-            // Extract clean note text (remove time, activity, and color metadata)
+            
             let cleanNote = existingNote.replace(/⏰ \d{2}:\d{2}/, '').trim();
             cleanNote = cleanNote.replace(/\| [^\n]+/, '').trim();
             cleanNote = cleanNote.replace(/\[COLOR:[^\]]+\]/, '').trim();
@@ -460,7 +459,7 @@
         saveModalNote.addEventListener('click', async () => {
           let noteText = modalNoteInput.value;
           
-          // Add time and activity to note if they exist
+          
           if (modalTime.value || selectedActivity) {
             let prefix = '';
             if (modalTime.value) {
@@ -468,7 +467,6 @@
             }
             if (selectedActivity) {
               prefix += ` | ${selectedActivity.type}`;
-              // Add hidden color marker for calendar display
               prefix += ` [COLOR:${selectedActivity.color}]`;
             }
             noteText = prefix + (noteText ? '\n' + noteText : '');
@@ -501,4 +499,5 @@
       });
     </script>
   </body>
+
 </html>
