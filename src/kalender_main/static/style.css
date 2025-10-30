@@ -201,7 +201,7 @@ th {
   color: #000;
 }
 
-/* NEW: Form group styling */
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -214,7 +214,7 @@ th {
   font-size: 14px;
 }
 
-/* NEW: Time input styling */
+
 .time-input {
   width: 150px;
   padding: 8px 10px;
@@ -224,7 +224,7 @@ th {
   font-family: Arial, sans-serif;
 }
 
-/* NEW: Activity selector */
+
 .activity-selector {
   display: flex;
   gap: 12px;
@@ -342,4 +342,5 @@ th {
 
 .modal-btn:hover {
   opacity: 0.9;
+
 }
